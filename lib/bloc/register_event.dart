@@ -13,5 +13,22 @@ class PasswordChanged extends RegisterEvent {
   PasswordChanged(this.password);
 }
 
+class PhoneChanged extends RegisterEvent {
+  final String phone;
+  PhoneChanged(this.phone);
+}
+
+class EmailChanged extends RegisterEvent {
+  final String email;
+  EmailChanged(this.email);
+}
+
+class ImageChanged extends RegisterEvent {
+  final String image;
+  ImageChanged(this.image);
+}
+
+class PickImage extends RegisterEvent {}
+
 // event กดปุ่ม register
 class RegisterSubmitted extends RegisterEvent {}

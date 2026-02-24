@@ -1,28 +1,8 @@
-import 'package:ai_chat_bot/login.dart';
-import 'package:ai_chat_bot/profile.dart';
+import 'package:ai_chat_bot/home.dart';
 import 'package:flutter/material.dart';
 
-class Home extends StatefulWidget {
-  const Home({super.key});
-
-  @override
-  State<Home> createState() => _HomeState();
-}
-
-class _HomeState extends State<Home> {
-  int _selectedIndex = 0;
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text('Home'),
-    Text('Business'),
-    Text('School'),
-    Text('Settings'),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+class Profile extends StatelessWidget {
+  const Profile({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +10,19 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Padding(
           padding: const EdgeInsets.only(top: 16.0), // ขยับลง 16 px
-          child: Image.asset("assets/images/logo.png", width: 100, height: 100),
+          child: IconButton(
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => Home()),
+              );
+            },
+            icon: Image.asset(
+              "assets/images/logo.png",
+              width: 100,
+              height: 100,
+            ),
+          ),
         ),
         centerTitle: true,
         actions: [
@@ -65,28 +57,6 @@ class _HomeState extends State<Home> {
             ),
           ),
         ),
-      ),
-      body: Center(child: _widgetOptions.elementAt(_selectedIndex)),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            label: 'แชท',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.analytics_outlined),
-            label: 'สรุป',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'ประวัติ'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            label: 'ตั้งค่า',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
       ),
     );
   }
