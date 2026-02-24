@@ -1,12 +1,19 @@
+import 'package:ai_chat_bot/home.dart';
 import 'package:ai_chat_bot/login.dart';
+import 'package:ai_chat_bot/repository/auth_repository.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final authRepo = AuthRepository();
+  final hasToken = await authRepo.hasToken();
+
+  runApp(MyApp(hasToken: hasToken));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool hasToken;
+  const MyApp({super.key, required this.hasToken});
 
   // This widget is the root of your application.
   @override
@@ -18,8 +25,8 @@ class MyApp extends StatelessWidget {
           seedColor: const Color.fromARGB(255, 255, 255, 255),
         ),
       ),
-      routes: {"/": (context) => Login()},
-      initialRoute: "/",
+      routes: {"/": (context) => Login(), "/home": (context) => Home()},
+      initialRoute: hasToken ? "/home" : "/",
     );
   }
 }

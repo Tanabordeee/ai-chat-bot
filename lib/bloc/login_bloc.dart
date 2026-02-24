@@ -25,13 +25,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           state.username,
           state.password,
         );
-        emit(state.copyWith(isLoading: false, error: null));
+        emit(state.copyWith(isLoading: false, isSuccess: true));
         print("TOKEN : $token");
       } catch (e) {
         emit(
           state.copyWith(
             isLoading: false,
             error: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
+            isSuccess: false,
           ),
         );
       }
