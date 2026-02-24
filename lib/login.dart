@@ -1,6 +1,7 @@
 import 'package:ai_chat_bot/bloc/login_bloc.dart';
 import 'package:ai_chat_bot/home.dart';
 import 'package:ai_chat_bot/repository/auth_repository.dart';
+import 'package:ai_chat_bot/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_chat_bot/bloc/login_event.dart';
@@ -146,7 +147,12 @@ class Login extends StatelessWidget {
                     if (state.error != null)
                       Text(state.error!, style: TextStyle(color: Colors.red)),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Signup()),
+                        );
+                      },
                       child: Text(
                         "Don't have an account? Sign up",
                         style: TextStyle(color: Colors.red),
