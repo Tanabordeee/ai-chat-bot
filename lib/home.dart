@@ -1,6 +1,11 @@
+import 'package:ai_chat_bot/bloc/profile_bloc.dart';
+import 'package:ai_chat_bot/bloc/profile_event.dart';
 import 'package:ai_chat_bot/login.dart';
 import 'package:ai_chat_bot/profile.dart';
+import 'package:ai_chat_bot/repository/auth_repository.dart';
+import 'package:ai_chat_bot/repository/user_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -13,9 +18,8 @@ class _HomeState extends State<Home> {
   int _selectedIndex = 0;
   static const List<Widget> _widgetOptions = <Widget>[
     Text('Home'),
-    Text('Business'),
-    Text('School'),
-    Text('Settings'),
+    Text('ANALYSIS'),
+    Text('HISTORY'),
   ];
 
   void _onItemTapped(int index) {
@@ -43,11 +47,30 @@ class _HomeState extends State<Home> {
                 width: 50,
                 height: 50,
               ),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Profile()),
-                );
+              onPressed: () async {
+                final authRepo = AuthRepository();
+                final userInfo = await authRepo.getUserInfoFromToken();
+                if (userInfo != null && userInfo['id'] != null) {
+                  final userId = userInfo['id'].toString();
+                  if (context.mounted) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BlocProvider(
+                          create: (context) =>
+                              ProfileBloc(UserRepository())
+                                ..add(LoadProfile(userId)),
+                          child: const Profile(),
+                        ),
+                      ),
+                    );
+                  }
+                } else {
+                  // Handle case where user info is not found (e.g., token expired)
+                  if (context.mounted) {
+                    Navigator.pushReplacementNamed(context, "/");
+                  }
+                }
               },
             ),
           ),
@@ -78,10 +101,6 @@ class _HomeState extends State<Home> {
             label: 'สรุป',
           ),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'ประวัติ'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            label: 'ตั้งค่า',
-          ),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue,

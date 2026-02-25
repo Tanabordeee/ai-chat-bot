@@ -70,4 +70,19 @@ class AuthRepository {
   Future<void> logout() async {
     await storage.deleteToken();
   }
+
+  Future<Map<String, dynamic>?> getUserInfoFromToken() async {
+    final token = await storage.getToken();
+    if (token == null) return null;
+
+    final parts = token.split('.');
+    if (parts.length != 3) return null;
+
+    final payload = parts[1];
+    final normalized = base64Url.normalize(payload);
+    final decoded = utf8.decode(base64Url.decode(normalized));
+    final data = jsonDecode(decoded) as Map<String, dynamic>;
+
+    return data; // มี id, username ตาม payload
+  }
 }
