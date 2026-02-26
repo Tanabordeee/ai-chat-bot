@@ -46,4 +46,30 @@ class UserRepository {
     }
     return false;
   }
+
+  Future<bool> updateUser(
+    String id,
+    String username,
+    String email,
+    String phone,
+  ) async {
+    final token = await storage.getToken();
+    if (token == null) return false;
+
+    final response = await http.put(
+      Uri.parse("$baseUrl/users/$id"),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: jsonEncode({"username": username, "email": email, "phone": phone}),
+    );
+
+    print("Update user response: ${response.statusCode} - ${response.body}");
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      return true;
+    }
+    return false;
+  }
 }

@@ -32,5 +32,24 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         emit(ProfileError(e.toString()));
       }
     });
+
+    on<UpdateProfile>((event, emit) async {
+      try {
+        final success = await userRepository.updateUser(
+          event.id,
+          event.username,
+          event.email,
+          event.phone,
+        );
+        if (success) {
+          // รีโหลดข้อมูลใหม่หลังจากอัปเดตสำเร็จ
+          add(LoadProfile(event.id));
+        } else {
+          emit(ProfileError("Failed to update profile"));
+        }
+      } catch (e) {
+        emit(ProfileError(e.toString()));
+      }
+    });
   }
 }

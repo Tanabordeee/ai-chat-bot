@@ -10,3 +10,16 @@ class RemoveUser extends ProfileEvent {
   final String id;
   RemoveUser(this.id);
 }
+
+class UpdateProfile extends ProfileEvent {
+  final String id;
+  final String username;
+  final String email;
+  final String phone;
+  UpdateProfile({
+    required this.id,
+    required this.username,
+    required this.email,
+    required this.phone,
+  });
+}

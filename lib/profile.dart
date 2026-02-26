@@ -10,8 +10,76 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:typed_data'; // สำหรับ Uint8List
 
-class Profile extends StatelessWidget {
+class Profile extends StatefulWidget {
   const Profile({super.key});
+
+  @override
+  State<Profile> createState() => _ProfileState();
+}
+
+class _ProfileState extends State<Profile> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  bool _isEditing = false;
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  void _toggleEdit() {
+    setState(() {
+      _isEditing = !_isEditing;
+      if (_isEditing) {
+        // Initialize controllers with current data when entering edit mode
+        final state = context.read<ProfileBloc>().state;
+        if (state is ProfileLoaded) {
+          _usernameController.text = state.user.username;
+          _emailController.text = state.user.email ?? "";
+          _phoneController.text = state.user.phone ?? "";
+        }
+      }
+    });
+  }
+
+  void _updateProfile(BuildContext context) {
+    // 1. ดึง state ล่าสุดจาก ProfileBloc เพื่อเอาค่าปัจจุบัน (เช่น id)
+    final currentState = context.read<ProfileBloc>().state;
+
+    if (currentState is ProfileLoaded) {
+      // ดึงค่าจาก controller ถ้าอยู่ในโหมดแก้ไข หรือเป็นค่าจาก state ถ้าไม่ได้แก้
+      final username = _isEditing
+          ? _usernameController.text
+          : currentState.user.username;
+      final email = _isEditing
+          ? _emailController.text
+          : (currentState.user.email ?? "");
+      final phone = _isEditing
+          ? _phoneController.text
+          : (currentState.user.phone ?? "");
+
+      // 2. ส่ง Event ไปที่ Bloc เพื่ออัปเดตข้อมูลจริง
+      context.read<ProfileBloc>().add(
+        UpdateProfile(
+          id: currentState.user.id.toString(),
+          username: username,
+          email: email,
+          phone: phone,
+        ),
+      );
+
+      // 3. ปิดโหมดแก้หลังจากกดอัปเดต
+      setState(() => _isEditing = false);
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Updating profile...")));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,8 +163,14 @@ class Profile extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           } else if (state is ProfileLoaded) {
             Uint8List? imagebytes; // nullable
-            if (state.user.image != null && state.user.image!.isNotEmpty) {
-              imagebytes = base64Decode(state.user.image!);
+            if (state.user.image != null &&
+                state.user.image!.isNotEmpty &&
+                state.user.image != "string") {
+              try {
+                imagebytes = base64Decode(state.user.image!);
+              } catch (e) {
+                print("Error decoding image: $e");
+              }
             }
             return Center(
               child: SingleChildScrollView(
@@ -123,37 +197,89 @@ class Profile extends StatelessWidget {
                           : const Center(child: Icon(Icons.person, size: 80)),
                     ),
                     const SizedBox(height: 20),
-                    Text(
-                      state.user.username,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                    if (!_isEditing)
+                      Text(
+                        state.user.username,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                    else
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        child: TextField(
+                          controller: _usernameController,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.normal,
+                          ),
+                          decoration: const InputDecoration(
+                            labelText: "Username",
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 20),
+                    // Email section
+                    if (!_isEditing)
+                      Text(
+                        state.user.email ?? "No Email",
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      )
+                    else
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        child: TextField(
+                          controller: _emailController,
+                          decoration: const InputDecoration(
+                            labelText: "Email",
+                            hintText: "Enter your email",
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 20),
+                    // Phone section
+                    if (!_isEditing)
+                      Text(
+                        state.user.phone ?? "No Phone",
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      )
+                    else
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        child: TextField(
+                          controller: _phoneController,
+                          decoration: const InputDecoration(
+                            labelText: "Phone",
+                            hintText: "Enter your phone number",
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 30),
+                    // EDIT Button (Permanent) - เปลี่ยนเป็น TextButton เพื่อให้เป็นแค่ข้อความ (ไม่มีกรอบ)
+                    TextButton.icon(
+                      onPressed: _toggleEdit,
+                      icon: Icon(_isEditing ? Icons.close : Icons.edit),
+                      label: Text(
+                        _isEditing ? "CANCEL EDIT" : "EDIT PROFILE",
+                        style: const TextStyle(fontSize: 16),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    if (state.user.email != null)
-                      Text(
-                        state.user.email!,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                    const SizedBox(height: 20),
-                    if (state.user.phone != null)
-                      Text(
-                        state.user.phone!,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(200, 50),
                       ),
-                      onPressed: () {},
+                      onPressed: () => _updateProfile(context),
                       child: const Text("UPDATE PROFILE"),
                     ),
                     const SizedBox(height: 20),
@@ -230,10 +356,12 @@ class Profile extends StatelessWidget {
             // กด Logout
             final authRepo = AuthRepository();
             await authRepo.logout();
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const Login()),
-            );
+            if (context.mounted) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const Login()),
+              );
+            }
           }
         },
       ),
