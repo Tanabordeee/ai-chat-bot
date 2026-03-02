@@ -1,8 +1,12 @@
 import 'package:ai_chat_bot/bloc/profile_bloc.dart';
 import 'package:ai_chat_bot/bloc/profile_event.dart';
 import 'package:ai_chat_bot/login.dart';
+import 'package:ai_chat_bot/bank.dart';
 import 'package:ai_chat_bot/profile.dart';
 import 'package:ai_chat_bot/repository/auth_repository.dart';
+import 'package:ai_chat_bot/bloc/account_bloc.dart';
+import 'package:ai_chat_bot/bloc/account_event.dart';
+import 'package:ai_chat_bot/repository/account_repository.dart';
 import 'package:ai_chat_bot/repository/user_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,6 +20,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _selectedIndex = 0;
+  Widget? _customBody;
+
   static const List<Widget> _widgetOptions = <Widget>[
     Text('Home'),
     Text('ANALYSIS'),
@@ -25,6 +31,7 @@ class _HomeState extends State<Home> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      _customBody = null;
     });
   }
 
@@ -34,7 +41,19 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Padding(
           padding: const EdgeInsets.only(top: 16.0), // ขยับลง 16 px
-          child: Image.asset("assets/images/logo.png", width: 100, height: 100),
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedIndex = 0;
+                _customBody = null;
+              });
+            },
+            child: Image.asset(
+              "assets/images/logo.png",
+              width: 100,
+              height: 100,
+            ),
+          ),
         ),
         centerTitle: true,
         actions: [
@@ -53,17 +72,14 @@ class _HomeState extends State<Home> {
                 if (userInfo != null && userInfo['id'] != null) {
                   final userId = userInfo['id'].toString();
                   if (context.mounted) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BlocProvider(
-                          create: (context) =>
-                              ProfileBloc(UserRepository())
-                                ..add(LoadProfile(userId)),
-                          child: const Profile(),
-                        ),
-                      ),
-                    );
+                    setState(() {
+                      _customBody = BlocProvider(
+                        create: (context) =>
+                            ProfileBloc(UserRepository())
+                              ..add(LoadProfile(userId)),
+                        child: const Profile(),
+                      );
+                    });
                   }
                 } else {
                   // Handle case where user info is not found (e.g., token expired)
@@ -78,7 +94,25 @@ class _HomeState extends State<Home> {
         leading: Padding(
           padding: const EdgeInsets.only(left: 10), // ระยะซ้ายสุด
           child: IconButton(
-            onPressed: () {},
+            onPressed: () async {
+              final authRepo = AuthRepository();
+              final userInfo = await authRepo.getUserInfoFromToken();
+              if (userInfo != null && userInfo['id'] != null) {
+                if (context.mounted) {
+                  setState(() {
+                    _customBody = BlocProvider(
+                      create: (context) =>
+                          AccountBloc(AccountRepository())..add(LoadAccounts()),
+                      child: const Bank(),
+                    );
+                  });
+                }
+              } else {
+                if (context.mounted) {
+                  Navigator.pushReplacementNamed(context, "/");
+                }
+              }
+            },
             padding: EdgeInsets.zero, // ลบ padding ภายใน
             constraints: const BoxConstraints(), // ลบข้อจำกัด
             icon: Image.asset(
@@ -89,7 +123,9 @@ class _HomeState extends State<Home> {
           ),
         ),
       ),
-      body: Center(child: _widgetOptions.elementAt(_selectedIndex)),
+      body:
+          _customBody ??
+          Center(child: _widgetOptions.elementAt(_selectedIndex)),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -103,7 +139,7 @@ class _HomeState extends State<Home> {
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'ประวัติ'),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
+        selectedItemColor: _customBody == null ? Colors.blue : Colors.grey,
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
       ),
