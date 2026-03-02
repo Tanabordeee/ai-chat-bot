@@ -1,8 +1,11 @@
+import 'dart:ui';
+
 import 'package:ai_chat_bot/home.dart';
 import 'package:ai_chat_bot/login.dart';
 import 'package:ai_chat_bot/profile.dart';
 import 'package:ai_chat_bot/repository/auth_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,8 +25,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('th', 'TH'), Locale('en', 'US')],
+      locale: const Locale('th', 'TH'),
       theme: ThemeData(
-        colorScheme: .fromSeed(
+        colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromARGB(255, 255, 255, 255),
         ),
       ),

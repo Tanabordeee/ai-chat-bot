@@ -1,5 +1,6 @@
 import 'package:ai_chat_bot/bloc/profile_bloc.dart';
 import 'package:ai_chat_bot/bloc/profile_event.dart';
+import 'package:ai_chat_bot/chat.dart';
 import 'package:ai_chat_bot/login.dart';
 import 'package:ai_chat_bot/bank.dart';
 import 'package:ai_chat_bot/profile.dart';
@@ -23,7 +24,7 @@ class _HomeState extends State<Home> {
   Widget? _customBody;
 
   static const List<Widget> _widgetOptions = <Widget>[
-    Text('Home'),
+    Chat(),
     Text('ANALYSIS'),
     Text('HISTORY'),
   ];
