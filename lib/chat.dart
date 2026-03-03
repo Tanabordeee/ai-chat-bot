@@ -76,94 +76,82 @@ class _ChatState extends State<Chat> {
           create: (context) => ChatBloc(chatRepository: ChatRepository()),
         ),
       ],
-      child: Scaffold(
-        appBar: AppBar(
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(50),
-            child: BlocBuilder<AccountBloc, AccountState>(
-              builder: (context, state) {
-                if (state is AccountLoaded) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 5,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: DropdownButtonFormField<Account>(
-                      isExpanded: true,
-                      value: _selectedAccount,
-                      decoration: const InputDecoration(
-                        labelText: "เลือกบัญชี",
-                        border: InputBorder.none,
-                      ),
-                      items: state.accounts.map((account) {
-                        return DropdownMenuItem<Account>(
-                          value: account,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                account.name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (newValue) {
-                        setState(() {
-                          _selectedAccount = newValue;
-                        });
-                      },
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
+      child: Column(
+        children: [
+          _buildMinimalDropdown(),
+          Expanded(child: _buildMessageList()),
+          _buildInputArea(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMinimalDropdown() {
+    return BlocBuilder<AccountBloc, AccountState>(
+      builder: (context, state) {
+        if (state is AccountLoaded) {
+          if (_selectedAccount == null && state.accounts.isNotEmpty) {
+            _selectedAccount = state.accounts.first;
+          }
+
+          return Container(
+            margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            height: 50,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(14),
             ),
-          ),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: BlocConsumer<ChatBloc, ChatState>(
-                listener: (context, state) {
-                  _scrollToBottom();
-                },
-                builder: (context, state) {
-                  return ListView.builder(
-                    controller: _scrollController,
-                    itemCount:
-                        state.messages.length + (state.isLoading ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == state.messages.length) {
-                        return const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Center(child: CircularProgressIndicator()),
-                        );
-                      }
-                      return MessageBubble(message: state.messages[index]);
-                    },
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<Account>(
+                isExpanded: true,
+                value: _selectedAccount,
+                icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                style: const TextStyle(
+                  fontSize: 15,
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w500,
+                ),
+                items: state.accounts.map((account) {
+                  return DropdownMenuItem<Account>(
+                    value: account,
+                    child: Text(account.name),
                   );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedAccount = value;
+                  });
                 },
               ),
             ),
-            _buildInputArea(),
-          ],
-        ),
-      ),
+          );
+        }
+
+        return const SizedBox(height: 70);
+      },
+    );
+  }
+
+  Widget _buildMessageList() {
+    return BlocConsumer<ChatBloc, ChatState>(
+      listener: (context, state) => _scrollToBottom(),
+      builder: (context, state) {
+        return ListView.builder(
+          controller: _scrollController,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: state.messages.length + (state.isLoading ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (index == state.messages.length) {
+              return const Padding(
+                padding: EdgeInsets.all(16),
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+            return MessageBubble(message: state.messages[index]);
+          },
+        );
+      },
     );
   }
 
