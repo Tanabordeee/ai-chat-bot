@@ -1,7 +1,6 @@
 import 'package:ai_chat_bot/bloc/profile_bloc.dart';
 import 'package:ai_chat_bot/bloc/profile_event.dart';
 import 'package:ai_chat_bot/chat.dart';
-import 'package:ai_chat_bot/login.dart';
 import 'package:ai_chat_bot/bank.dart';
 import 'package:ai_chat_bot/profile.dart';
 import 'package:ai_chat_bot/repository/auth_repository.dart';

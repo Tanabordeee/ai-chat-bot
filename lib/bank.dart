@@ -1,7 +1,11 @@
 import 'package:ai_chat_bot/bloc/account_bloc.dart';
 import 'package:ai_chat_bot/bloc/account_event.dart';
 import 'package:ai_chat_bot/bloc/account_state.dart';
+import 'package:ai_chat_bot/bloc/transaction_bloc.dart';
+import 'package:ai_chat_bot/bloc/transaction_event.dart';
 import 'package:ai_chat_bot/repository/auth_repository.dart';
+import 'package:ai_chat_bot/repository/transaction_repository.dart';
+import 'package:ai_chat_bot/transaction_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -220,71 +224,88 @@ class _BankState extends State<Bank> {
 
                     // Existing account cards
                     final account = accounts[index];
-                    return Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: index == 0
-                              ? const Color.fromARGB(255, 180, 180, 180)
-                              : Colors.grey[400]!,
-                          width: index == 0 ? 2 : 1,
+                    return InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BlocProvider(
+                              create: (context) =>
+                                  TransactionBloc(TransactionRepository())
+                                    ..add(LoadTransactions(account.id)),
+                              child: TransactionScreen(
+                                accountName: account.name,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            spreadRadius: 3,
-                            blurRadius: 6,
-                            offset: const Offset(0, 3), // Bottom shadow
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: index == 0
+                                ? const Color.fromARGB(255, 180, 180, 180)
+                                : Colors.grey[400]!,
+                            width: index == 0 ? 2 : 1,
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: const [
-                              Text(
-                                "บัญชี",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black87,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              spreadRadius: 3,
+                              blurRadius: 6,
+                              offset: const Offset(0, 3), // Bottom shadow
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: const [
+                                Text(
+                                  "บัญชี",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black87,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                "จำนวนเงินคงเหลือ",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black87,
+                                Text(
+                                  "จำนวนเงินคงเหลือ",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black87,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                account.name,
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  account.name,
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                "${account.balance.toInt()} บาท",
-                                style: const TextStyle(fontSize: 18),
-                              ),
-                            ],
-                          ),
-                        ],
+                                Text(
+                                  "${account.balance.toInt()} บาท",
+                                  style: const TextStyle(fontSize: 18),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },

@@ -1,8 +1,5 @@
-import 'dart:ui';
-
 import 'package:ai_chat_bot/home.dart';
 import 'package:ai_chat_bot/login.dart';
-import 'package:ai_chat_bot/profile.dart';
 import 'package:ai_chat_bot/repository/auth_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
