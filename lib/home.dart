@@ -1,12 +1,16 @@
 import 'package:ai_chat_bot/bloc/profile_bloc.dart';
 import 'package:ai_chat_bot/bloc/profile_event.dart';
+import 'package:ai_chat_bot/bloc/transaction_bloc.dart';
+import 'package:ai_chat_bot/bloc/transaction_event.dart';
 import 'package:ai_chat_bot/chat.dart';
 import 'package:ai_chat_bot/bank.dart';
+import 'package:ai_chat_bot/history.dart';
 import 'package:ai_chat_bot/profile.dart';
 import 'package:ai_chat_bot/repository/auth_repository.dart';
 import 'package:ai_chat_bot/bloc/account_bloc.dart';
 import 'package:ai_chat_bot/bloc/account_event.dart';
 import 'package:ai_chat_bot/repository/account_repository.dart';
+import 'package:ai_chat_bot/repository/transaction_repository.dart';
 import 'package:ai_chat_bot/repository/user_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,10 +26,15 @@ class _HomeState extends State<Home> {
   int _selectedIndex = 0;
   Widget? _customBody;
 
-  static const List<Widget> _widgetOptions = <Widget>[
+  List<Widget> _widgetOptions = <Widget>[
     Chat(),
     Text('ANALYSIS'),
-    Text('HISTORY'),
+    BlocProvider(
+      create: (context) =>
+          TransactionBloc(TransactionRepository())
+            ..add(LoadTransactionsByUserId()),
+      child: History(),
+    ),
   ];
 
   void _onItemTapped(int index) {

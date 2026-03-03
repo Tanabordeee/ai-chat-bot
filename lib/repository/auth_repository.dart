@@ -85,4 +85,12 @@ class AuthRepository {
 
     return data; // มี id, username ตาม payload
   }
+
+  Future<int> getUserId() async {
+    final userInfo = await getUserInfoFromToken();
+    if (userInfo != null && userInfo['id'] != null) {
+      return userInfo['id'];
+    }
+    throw Exception("User ID not found");
+  }
 }

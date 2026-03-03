@@ -7,3 +7,7 @@ class LoadTransactions extends TransactionEvent {
 
   const LoadTransactions(this.accountId);
 }
+
+class LoadTransactionsByUserId extends TransactionEvent {
+  const LoadTransactionsByUserId();
+}

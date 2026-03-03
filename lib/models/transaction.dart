@@ -1,6 +1,6 @@
 class Transaction {
-  final int id;
-  final int accountId;
+  final dynamic id;
+  final dynamic accountId;
   final String name;
   final String transactionType;
   final double amount;
