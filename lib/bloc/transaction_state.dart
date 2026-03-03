@@ -10,15 +10,9 @@ class TransactionLoading extends TransactionState {}
 
 class TransactionLoaded extends TransactionState {
   final List<Transaction> transactions;
-
-  const TransactionLoaded(this.transactions);
-}
-
-class TransactionCalculated extends TransactionState {
   final Map<String, double> summary;
-  final List<Transaction> raw;
 
-  const TransactionCalculated(this.summary, this.raw);
+  const TransactionLoaded(this.transactions, this.summary);
 }
 
 class TransactionError extends TransactionState {
@@ -26,3 +20,5 @@ class TransactionError extends TransactionState {
 
   const TransactionError(this.message);
 }
+
+class TransactionUnauthenticated extends TransactionState {}

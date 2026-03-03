@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_chat_bot/bloc/account_event.dart';
 import 'package:ai_chat_bot/bloc/account_state.dart';
 import 'package:ai_chat_bot/repository/account_repository.dart';
+import 'package:ai_chat_bot/exceptions/unauthorized_exception.dart';
 
 class AccountBloc extends Bloc<AccountEvent, AccountState> {
   final AccountRepository repository;
@@ -12,6 +13,8 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
       try {
         final accounts = await repository.getAccounts();
         emit(AccountLoaded(accounts));
+      } on UnauthorizedException {
+        emit(AccountUnauthenticated());
       } catch (e) {
         emit(AccountError(e.toString()));
       }
@@ -25,6 +28,8 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
           event.user_id,
         );
         add(LoadAccounts()); // Reload accounts after creating
+      } on UnauthorizedException {
+        emit(AccountUnauthenticated());
       } catch (e) {
         emit(AccountError(e.toString()));
       }

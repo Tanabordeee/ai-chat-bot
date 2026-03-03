@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:ai_chat_bot/models/account.dart';
 import 'package:ai_chat_bot/storage/token_storage.dart';
+import 'package:ai_chat_bot/exceptions/unauthorized_exception.dart';
 import 'package:http/http.dart' as http;
 
 class AccountRepository {
@@ -22,6 +23,8 @@ class AccountRepository {
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
       return data.map((json) => Account.fromJson(json)).toList();
+    } else if (response.statusCode == 401) {
+      throw UnauthorizedException();
     } else {
       throw Exception("Failed to load accounts: ${response.statusCode}");
     }
@@ -49,6 +52,9 @@ class AccountRepository {
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {
+      if (response.statusCode == 401) {
+        throw UnauthorizedException();
+      }
       throw Exception(
         "Failed to create account: ${response.statusCode}\nDetails: ${response.body}",
       );

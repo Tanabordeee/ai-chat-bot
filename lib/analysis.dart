@@ -109,9 +109,9 @@ class _AnalysisState extends State<Analysis> {
             return const Center(child: CircularProgressIndicator());
           } else if (state is TransactionError) {
             return Center(child: Text('Error: ${state.message}'));
-          } else if (state is TransactionCalculated) {
+          } else if (state is TransactionLoaded) {
             final summary = state.summary;
-            final raw = state.raw;
+            final raw = state.transactions;
             final income = summary['income'] ?? 0.0;
             final expense = summary['expense'] ?? 0.0;
             final balance = summary['balance'] ?? 0.0;

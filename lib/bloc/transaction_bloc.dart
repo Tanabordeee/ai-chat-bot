@@ -2,6 +2,7 @@ import 'package:ai_chat_bot/models/transaction.dart';
 import 'package:ai_chat_bot/bloc/transaction_event.dart';
 import 'package:ai_chat_bot/bloc/transaction_state.dart';
 import 'package:ai_chat_bot/repository/transaction_repository.dart';
+import 'package:ai_chat_bot/exceptions/unauthorized_exception.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
@@ -14,7 +15,9 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
         final transactions = await repository.getTransactionsByAccountId(
           event.accountId,
         );
-        emit(TransactionLoaded(transactions));
+        emit(TransactionLoaded(transactions, {}));
+      } on UnauthorizedException {
+        emit(TransactionUnauthenticated());
       } catch (e) {
         emit(TransactionError(e.toString()));
       }
@@ -23,8 +26,15 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     on<LoadTransactionsByUserId>((event, emit) async {
       emit(TransactionLoading());
       try {
-        final transactions = await repository.getTransactionsByUserId();
-        emit(TransactionLoaded(transactions));
+        final result = await repository.Calculate_all_transactions();
+        emit(
+          TransactionLoaded(
+            result['raw'] as List<Transaction>,
+            result['summary'] as Map<String, double>,
+          ),
+        );
+      } on UnauthorizedException {
+        emit(TransactionUnauthenticated());
       } catch (e) {
         emit(TransactionError(e.toString()));
       }
@@ -35,11 +45,13 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
       try {
         final result = await repository.Calculate_all_transactions();
         emit(
-          TransactionCalculated(
-            result['summary'] as Map<String, double>,
+          TransactionLoaded(
             result['raw'] as List<Transaction>,
+            result['summary'] as Map<String, double>,
           ),
         );
+      } on UnauthorizedException {
+        emit(TransactionUnauthenticated());
       } catch (e) {
         emit(TransactionError(e.toString()));
       }

@@ -15,3 +15,5 @@ class AccountError extends AccountState {
   final String message;
   AccountError(this.message);
 }
+
+class AccountUnauthenticated extends AccountState {}

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:ai_chat_bot/models/transaction.dart';
 import 'package:ai_chat_bot/storage/token_storage.dart';
+import 'package:ai_chat_bot/exceptions/unauthorized_exception.dart';
 import 'package:http/http.dart' as http;
 
 class TransactionRepository {
@@ -22,6 +23,8 @@ class TransactionRepository {
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       return data.map((json) => Transaction.fromJson(json)).toList();
+    } else if (response.statusCode == 401) {
+      throw UnauthorizedException();
     } else {
       throw Exception("Failed to load transactions: ${response.statusCode}");
     }
@@ -42,6 +45,8 @@ class TransactionRepository {
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       return data.map((json) => Transaction.fromJson(json)).toList();
+    } else if (response.statusCode == 401) {
+      throw UnauthorizedException();
     } else {
       throw Exception("Failed to load transactions: ${response.statusCode}");
     }
@@ -79,6 +84,8 @@ class TransactionRepository {
         "summary": {"balance": balance, "income": income, "expense": expense},
         "raw": transactions,
       };
+    } else if (response.statusCode == 401) {
+      throw UnauthorizedException();
     } else {
       throw Exception("Failed to load transactions: ${response.statusCode}");
     }
