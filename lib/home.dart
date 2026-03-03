@@ -4,6 +4,7 @@ import 'package:ai_chat_bot/bloc/transaction_bloc.dart';
 import 'package:ai_chat_bot/bloc/transaction_event.dart';
 import 'package:ai_chat_bot/chat.dart';
 import 'package:ai_chat_bot/bank.dart';
+import 'package:ai_chat_bot/analysis.dart';
 import 'package:ai_chat_bot/history.dart';
 import 'package:ai_chat_bot/profile.dart';
 import 'package:ai_chat_bot/repository/auth_repository.dart';
@@ -28,12 +29,17 @@ class _HomeState extends State<Home> {
 
   List<Widget> _widgetOptions = <Widget>[
     Chat(),
-    Text('ANALYSIS'),
     BlocProvider(
       create: (context) =>
           TransactionBloc(TransactionRepository())
-            ..add(LoadTransactionsByUserId()),
-      child: History(),
+            ..add(const CalculateAllTransactions()),
+      child: const Analysis(),
+    ),
+    BlocProvider(
+      create: (context) =>
+          TransactionBloc(TransactionRepository())
+            ..add(const LoadTransactionsByUserId()),
+      child: const History(),
     ),
   ];
 

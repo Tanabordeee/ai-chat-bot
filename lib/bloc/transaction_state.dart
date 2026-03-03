@@ -14,6 +14,13 @@ class TransactionLoaded extends TransactionState {
   const TransactionLoaded(this.transactions);
 }
 
+class TransactionCalculated extends TransactionState {
+  final Map<String, double> summary;
+  final List<Transaction> raw;
+
+  const TransactionCalculated(this.summary, this.raw);
+}
+
 class TransactionError extends TransactionState {
   final String message;
 

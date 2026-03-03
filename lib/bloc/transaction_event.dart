@@ -11,3 +11,7 @@ class LoadTransactions extends TransactionEvent {
 class LoadTransactionsByUserId extends TransactionEvent {
   const LoadTransactionsByUserId();
 }
+
+class CalculateAllTransactions extends TransactionEvent {
+  const CalculateAllTransactions();
+}
