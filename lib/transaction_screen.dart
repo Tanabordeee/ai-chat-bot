@@ -2,6 +2,7 @@ import 'package:ai_chat_bot/bloc/transaction_bloc.dart';
 import 'package:ai_chat_bot/bloc/transaction_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class TransactionScreen extends StatelessWidget {
   final String accountName;
@@ -89,7 +90,7 @@ class TransactionScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            '${isIncome ? "+" : "-"}${tx.price.toStringAsFixed(2)} บาท',
+                            '${isIncome ? "+" : "-"}${NumberFormat("#,##0.00").format(tx.price)} บาท',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,

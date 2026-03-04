@@ -2,6 +2,7 @@ import 'package:ai_chat_bot/bloc/transaction_bloc.dart';
 import 'package:ai_chat_bot/bloc/transaction_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class History extends StatefulWidget {
   const History({super.key});
@@ -138,7 +139,7 @@ class _HistoryState extends State<History> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  '${isIncome ? "+" : "-"}${tx.price.toStringAsFixed(2)}',
+                                  '${isIncome ? "+" : "-"}${NumberFormat("#,##0.00").format(tx.price)}',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,

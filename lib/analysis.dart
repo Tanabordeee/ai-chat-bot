@@ -4,6 +4,7 @@ import 'package:ai_chat_bot/models/transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class Analysis extends StatefulWidget {
   const Analysis({super.key});
@@ -155,7 +156,7 @@ class _AnalysisState extends State<Analysis> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "฿ ${balance.toStringAsFixed(2)}",
+                          "฿ ${NumberFormat("#,##0.00").format(balance)}",
                           style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -281,7 +282,7 @@ class _AnalysisState extends State<Analysis> {
             ),
             const SizedBox(height: 4),
             Text(
-              "฿ ${amount.toStringAsFixed(0)}",
+              "฿ ${NumberFormat("#,##0").format(amount)}",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,

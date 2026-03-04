@@ -3,12 +3,12 @@ import 'package:ai_chat_bot/bloc/account_event.dart';
 import 'package:ai_chat_bot/bloc/account_state.dart';
 import 'package:ai_chat_bot/bloc/transaction_bloc.dart';
 import 'package:ai_chat_bot/bloc/transaction_event.dart';
-import 'package:ai_chat_bot/bloc/transaction_state.dart';
 import 'package:ai_chat_bot/repository/auth_repository.dart';
 import 'package:ai_chat_bot/repository/transaction_repository.dart';
 import 'package:ai_chat_bot/transaction_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class Bank extends StatefulWidget {
   const Bank({super.key});
@@ -313,7 +313,7 @@ class _BankState extends State<Bank> {
                                     ),
                                   ),
                                   Text(
-                                    "${account.balance.toInt()} บาท",
+                                    "${NumberFormat("#,##0").format(account.balance)} บาท",
                                     style: const TextStyle(fontSize: 18),
                                   ),
                                 ],
