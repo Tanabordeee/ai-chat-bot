@@ -1,4 +1,5 @@
 import 'package:ai_chat_bot/bloc/transaction_bloc.dart';
+import 'package:ai_chat_bot/bloc/transaction_event.dart';
 import 'package:ai_chat_bot/bloc/transaction_state.dart';
 import 'package:ai_chat_bot/models/transaction.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,13 @@ class Analysis extends StatefulWidget {
 }
 
 class _AnalysisState extends State<Analysis> {
+  @override
+  void initState() {
+    super.initState();
+    // Refresh data every time the screen is opened/initialized
+    context.read<TransactionBloc>().add(const CalculateAllTransactions());
+  }
+
   String _getThaiDate() {
     final now = DateTime.now();
     final days = [

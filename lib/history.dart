@@ -1,4 +1,5 @@
 import 'package:ai_chat_bot/bloc/transaction_bloc.dart';
+import 'package:ai_chat_bot/bloc/transaction_event.dart';
 import 'package:ai_chat_bot/bloc/transaction_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +16,13 @@ class _HistoryState extends State<History> {
   final TextEditingController _searchController = TextEditingController();
   String _filterType = 'all'; // 'all', 'income', 'expense'
   String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // Refresh data every time the screen is opened/initialized
+    context.read<TransactionBloc>().add(const CalculateAllTransactions());
+  }
 
   @override
   void dispose() {

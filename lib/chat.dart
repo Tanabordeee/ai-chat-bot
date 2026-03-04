@@ -12,6 +12,9 @@ import 'package:ai_chat_bot/repository/chat_repository.dart';
 import 'package:ai_chat_bot/repository/account_repository.dart';
 import 'package:ai_chat_bot/models/account.dart';
 import 'package:ai_chat_bot/widgets/message_bubble.dart';
+import 'package:ai_chat_bot/bloc/transaction_bloc.dart';
+import 'package:ai_chat_bot/bloc/transaction_event.dart';
+import 'package:ai_chat_bot/models/chat_message.dart';
 
 class Chat extends StatefulWidget {
   const Chat({super.key});
@@ -135,7 +138,19 @@ class _ChatState extends State<Chat> {
 
   Widget _buildMessageList() {
     return BlocConsumer<ChatBloc, ChatState>(
-      listener: (context, state) => _scrollToBottom(),
+      listener: (context, state) {
+        _scrollToBottom();
+        // Refresh TransactionBloc if a new AI message is received
+        if (!state.isLoading && state.messages.isNotEmpty) {
+          final lastMsg = state.messages.last;
+          if (lastMsg.sender == MessageSender.ai &&
+              lastMsg.aiResponse != null) {
+            context.read<TransactionBloc>().add(
+              const CalculateAllTransactions(),
+            );
+          }
+        }
+      },
       builder: (context, state) {
         return ListView.builder(
           controller: _scrollController,
