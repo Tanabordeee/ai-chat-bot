@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:ai_chat_bot/bloc/chat_bloc.dart';
 import 'package:ai_chat_bot/bloc/chat_event.dart';
 import 'package:ai_chat_bot/bloc/chat_state.dart';
@@ -25,6 +26,83 @@ class _ChatState extends State<Chat> {
   final ScrollController _scrollController = ScrollController();
   final ImagePicker _picker = ImagePicker();
   Account? _selectedAccount;
+  final stt.SpeechToText _speechToText = stt.SpeechToText();
+  bool _isListening = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initSpeech();
+  }
+
+  void _initSpeech() async {
+    await _speechToText.initialize(
+      onStatus: (status) {
+        if (status == 'done' || status == 'notListening') {
+          if (mounted) {
+            setState(() => _isListening = false);
+          }
+        }
+      },
+      onError: (error) {
+        if (mounted) {
+          setState(() => _isListening = false);
+        }
+      },
+    );
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _listen() async {
+    if (!_isListening) {
+      bool available = await _speechToText.initialize(
+        onStatus: (status) {
+          if (status == 'done' || status == 'notListening') {
+            if (mounted) {
+              setState(() => _isListening = false);
+            }
+          }
+        },
+        onError: (error) {
+          if (mounted) {
+            setState(() => _isListening = false);
+          }
+        },
+      );
+      if (available) {
+        setState(() => _isListening = true);
+        
+        String thLocaleId = 'th_TH';
+        try {
+          var locales = await _speechToText.locales();
+          for (var loc in locales) {
+            if (loc.localeId.toLowerCase().startsWith('th')) {
+              thLocaleId = loc.localeId;
+              break;
+            }
+          }
+        } catch (e) {
+          // Fallback if fetching locales fails
+        }
+
+        _speechToText.listen(
+          onResult: (val) {
+            if (mounted) {
+              setState(() {
+                _messageController.text = val.recognizedWords;
+              });
+            }
+          },
+          localeId: thLocaleId,
+        );
+      }
+    } else {
+      setState(() => _isListening = false);
+      _speechToText.stop();
+    }
+  }
 
   @override
   void dispose() {
@@ -181,6 +259,13 @@ class _ChatState extends State<Chat> {
                 icon: const Icon(Icons.photo_library_outlined),
                 onPressed: () =>
                     _pickImage(ImageSource.gallery, context.read<ChatBloc>()),
+              ),
+              IconButton(
+                icon: Icon(
+                  _isListening ? Icons.mic : Icons.mic_none,
+                  color: _isListening ? Colors.red : null,
+                ),
+                onPressed: _listen,
               ),
               Expanded(
                 child: TextField(
