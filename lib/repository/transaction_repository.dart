@@ -63,9 +63,16 @@ class TransactionRepository {
         "Authorization": "Bearer $token",
       },
     );
-
-    if (response.statusCode == 200) {
+    final response2 = await http.get(
+      Uri.parse("$baseUrl/accounts/"),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+    if (response.statusCode == 200 && response2.statusCode == 200) {
       final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
+      final List<dynamic> data2 = jsonDecode(utf8.decode(response2.bodyBytes));
       double income = 0;
       double expense = 0;
       List<Transaction> transactions = [];
@@ -79,7 +86,12 @@ class TransactionRepository {
           expense += tx.amount * tx.price;
         }
       }
-      double balance = income - expense;
+      double balance = 0;
+      for (var json in data2) {
+        if (json["balance"] != null) {
+          balance += json["balance"];
+        }
+      }
       return {
         "summary": {"balance": balance, "income": income, "expense": expense},
         "raw": transactions,
