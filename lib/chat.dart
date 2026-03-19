@@ -38,13 +38,11 @@ class _ChatState extends State<Chat> {
     _initSpeech();
   }
 
-  void _initSpeech() async {
+  Future<void> _initSpeech() async {
     await _speechToText.initialize(
       onStatus: (status) {
-        if (status == 'done' || status == 'notListening') {
-          if (mounted) {
-            setState(() => _isListening = false);
-          }
+        if (mounted) {
+          setState(() => _isListening = _speechToText.isListening);
         }
       },
       onError: (error) {
@@ -59,50 +57,35 @@ class _ChatState extends State<Chat> {
   }
 
   void _listen() async {
-    if (!_isListening) {
-      bool available = await _speechToText.initialize(
-        onStatus: (status) {
-          if (status == 'done' || status == 'notListening') {
-            if (mounted) {
-              setState(() => _isListening = false);
-            }
-          }
-        },
-        onError: (error) {
-          if (mounted) {
-            setState(() => _isListening = false);
-          }
-        },
-      );
-      if (available) {
-        setState(() => _isListening = true);
-        
-        String thLocaleId = 'th_TH';
-        try {
-          var locales = await _speechToText.locales();
-          for (var loc in locales) {
-            if (loc.localeId.toLowerCase().startsWith('th')) {
-              thLocaleId = loc.localeId;
-              break;
-            }
-          }
-        } catch (e) {
-          // Fallback if fetching locales fails
-        }
+    if (!_speechToText.isAvailable) {
+      await _initSpeech();
+    }
 
-        _speechToText.listen(
-          onResult: (val) {
-            if (mounted) {
-              setState(() {
-                _messageController.text = val.recognizedWords;
-              });
-            }
-          },
-          localeId: thLocaleId,
-        );
+    if (_speechToText.isNotListening) {
+      String thLocaleId = 'th_TH';
+      try {
+        var locales = await _speechToText.locales();
+        for (var loc in locales) {
+          if (loc.localeId.toLowerCase().startsWith('th')) {
+            thLocaleId = loc.localeId;
+            break;
+          }
+        }
+      } catch (e) {
+        // Fallback if fetching locales fails
       }
+
+      _speechToText.listen(
+        onResult: (val) {
+          if (mounted) {
+            setState(() {
+              _messageController.text = val.recognizedWords;
+            });
+          }
+        },
+        localeId: thLocaleId,
+      );
     } else {
-      setState(() => _isListening = false);
       _speechToText.stop();
     }
   }
@@ -278,7 +261,7 @@ class _ChatState extends State<Chat> {
               IconButton(
                 icon: Icon(
                   _isListening ? Icons.mic : Icons.mic_none,
-                  color: _isListening ? Colors.red : null,
+                  color: _isListening ? Colors.red : Colors.grey,
                 ),
                 onPressed: _listen,
               ),
